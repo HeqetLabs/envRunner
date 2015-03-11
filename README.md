@@ -1,12 +1,21 @@
-# envRunner
+envRunner is a command wrapper that provides configuration through environment variables. These variables can be set from a multitude of sources.                                                                
+Examples:
+```
 
-Just a simple command wrapper to change the environment from local and remote sources. It currently supports `json` and `yaml` formats.
+    envRunner  test.yml exec some_command params
+    envRunner test.json exec some_command params
+    envRunner http://test.com/test.yml exec some_command params
+    envRunner http://test.com/test.json exec some_command params
+
+```
+
+Each of the above will read the configuration file and then merge the values inside of that with the environment of the subprocess.
 
 ```
 Usage:
-  envRunner (-h | --help)
-  envRunner <config> exec [COMMAND ...]
+  envRunner (-h | --help) 
+  envRunner <config> exec [COMMAND ...]                                                                                
 Options:
-  -h --help   Shows this screen.
-  --version
+  -h --help   Shows this screen.                                                                                       
+  --version  
 ```

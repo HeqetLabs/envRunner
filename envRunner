@@ -4,10 +4,10 @@
 These variables can be set from a multitude of sources.
 
 Examples:
-    envRunner test.yml some_command
-    envRunner test.json some_command
-    envRunner http://test.com/test.yml some_command
-    envRunner http://test.com/test.json some_command
+    envRunner test.yml exec some_command params
+    envRunner test.json exec some_command params
+    envRunner http://test.com/test.yml exec some_command params
+    envRunner http://test.com/test.json exec some_command params
 
 Each of the above will read the configuration file
 and then merge the values inside of that with the 
