@@ -68,3 +68,4 @@ if __name__ == '__main__':
   env = dict(os.environ, **{ k: str(environment[k]) for k in environment})
   if arguments["exec"]:
     process = subprocess.Popen(arguments["COMMAND"], env=env)
+    process.wait()
