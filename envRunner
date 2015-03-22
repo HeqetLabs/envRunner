@@ -9,6 +9,18 @@ Examples:
     envRunner http://test.com/test.yml exec some_command params
     envRunner http://test.com/test.json exec some_command params
 
+Example test.yml:
+
+  HELLO: world
+  TESTING: 123
+
+Example test.json:
+
+  {
+    "HELLO": "world",
+    "TESTING": 123
+  }
+
 Each of the above will read the configuration file
 and then merge the values inside of that with the 
 environment of the subprocess.
@@ -56,8 +68,9 @@ def read_remote_file(url):
     return yaml.load(r.text)
 
 if __name__ == '__main__':
-  arguments = docopt(__doc__, version='envRunner v0.1')
+  arguments = docopt(__doc__, version='envRunner v0.1.6', options_first=True)
   parsed_uri = urlparse(arguments["<config>"])
+
 
   environment = {}
   if "http" in parsed_uri.scheme:
@@ -69,3 +82,4 @@ if __name__ == '__main__':
   if arguments["exec"]:
     process = subprocess.Popen(arguments["COMMAND"], env=env)
     process.wait()
+
