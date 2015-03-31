@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(name='envRunner',
-    version='0.1.7',
+    version='0.1.8',
     description='Run a command with environment variables set from a url or file',
     author='Sean Reed',
     author_email='sean@reed.pub',

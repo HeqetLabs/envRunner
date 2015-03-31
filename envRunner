@@ -78,7 +78,7 @@ class SigIntHandler:
 
 
 if __name__ == '__main__':
-  arguments = docopt(__doc__, version='envRunner v0.1.6', options_first=True)
+  arguments = docopt(__doc__, version='envRunner v0.1.8', options_first=True)
   parsed_uri = urlparse(arguments["<config>"])
 
 
