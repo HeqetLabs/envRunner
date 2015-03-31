@@ -44,56 +44,80 @@ import subprocess
 import sys
 import yaml
 
-def _read_local_file(filename):
-  _,ext = os.path.splitext(filename)
-  ext = ext.lower()
-
-  if ext == ".yaml" or ext == ".yml":
-    return _read_yaml_file(filename)
-  elif ext == ".js" or ext == ".json":
-    return _read_json_file(filename)
-  else:
-    raise Exception("Could not read" + filename)
-
-def _read_yaml_file(filename):
-  return yaml.load(open(filename, "r"))
-
-def _read_json_file(filename):
-  return json.load(open(filename, "r"))
-
-def _read_remote_file(url):
-  r = requests.get(url)
-
-  try:
-    return json.loads(r.text)
-  except (ValueError):
-    return yaml.load(r.text)
-
 class SigIntHandler:
   def __init__(self, process):
     self.process = process
 
   def __call__(self, signal, fname):
     self.process.terminate() 
+    sys.exit(0)
+
+class HttpRunner:
+  def __init__(self, url):
+    self.url = url
+    self.environment = self._read_remote_file()
+
+  def _read_remote_file(self):
+    r = requests.get(self.url)
+
+    try:
+      return json.loads(r.text)
+    except (ValueError):
+      return yaml.load(r.text)
+
+  def __call__(self):
+    pass
+
+class LocalRunner:
+  def __init__(self, url):
+    self.url = url
+    self.environment = self._read_local_file()
+
+  def _read_local_file(filename):
+    _,ext = os.path.splitext(filename)
+    ext = ext.lower()
+
+    if ext == ".yaml" or ext == ".yml":
+      return self._read_yaml_file(filename)
+    elif ext == ".js" or ext == ".json":
+      return self._read_json_file(filename)
+    else:
+      raise Exception("Could not read" + filename)
+
+  def _read_yaml_file(filename):
+    return yaml.load(open(filename, "r"))
+
+  def _read_json_file(filename):
+    return json.load(open(filename, "r"))
+
+  def __call__(self, command):
+    env = dict(os.environ, **{ k: str(environment[k]) for k in environment})
+    self.process = subprocess.Popen(command, env=env)
+
+    sigintHandler = SigIntHandler(process)
+    signal.signal(signal.SIGINT, sigintHandler)
+
+    process.wait()
+
+class TimeBasedPoller:
+  def __init__(self, interval):
+    self.interval = interval
+    self.running = True
+
+  def __call__(self):
+    while self.running:
+      pass
 
 
 if __name__ == '__main__':
   arguments = docopt(__doc__, version='envRunner v0.1.6', options_first=True)
   parsed_uri = urlparse(arguments["<config>"])
 
-
-  environment = {}
   if "http" in parsed_uri.scheme:
-    environment = _read_remote_file(parsed_uri.geturl())
+    runner = HttpRunner(parsed_uri.getUrl())
   elif "file" in parsed_uri.scheme or parsed_uri.scheme == "":
-    environment = _read_local_file(parsed_uri.path) 
+    runner = LocalRunner(parsed_uri.path)
 
-  env = dict(os.environ, **{ k: str(environment[k]) for k in environment})
   if arguments["exec"]:
-    process = subprocess.Popen(arguments["COMMAND"], env=env)
-
-    sigintHandler = SigIntHandler(process)
-    signal.signal(signal.SIGINT, sigintHandler)
-
-    process.wait()
+    runner(arguments["COMMAND"])
 
